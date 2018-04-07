@@ -85,7 +85,11 @@
                         }, 100)
                     })
                 }else{
-                    alert("关闭成功")
+                    sp[com].close(function(err){
+                        if(err){
+                            alert(err)
+                        }
+                    })
                }
             });
             function closeSerialPort(serial, obj){
