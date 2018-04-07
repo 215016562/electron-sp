@@ -1,0 +1,126 @@
+<!doctype html> 
+<html> 
+    <head> 
+        <title>金翼蛋品蛋品收购系统- 网络数据管理器</title> 
+        <script type="text/javascript" src="jquery.min.js"></script>
+        <!-- <script type="text/javascript" src="localStorage.js"></script> -->
+        <style>
+            *{ margin: 0; padding: 0; }
+            div{ height: 40px; text-align: center;}
+            div label{
+                font: 13px/40px '微软雅黑';
+                color: gray;
+            }
+            input[type='text']{
+                width: 100px;
+            }
+            input[type='button']{
+                font: 13px/40 '微软雅黑';
+            }
+
+        </style>
+    </head> 
+    <body> 
+        <div>
+            <label>一号</label>
+            <input type="checkbox" class="com" value="one" />
+            &nbsp;
+            &nbsp;
+            <label>二号</label>
+            <input type="checkbox"  class="com" value="two" />
+            &nbsp;
+            &nbsp;
+            <label>三号</label>
+            <input type="checkbox"  class="com" value="three" />
+            &nbsp;
+            &nbsp;
+            <label>四号</label>
+            <input type="checkbox"  class="com" value="four" />
+        </div>
+        <div>
+            <input type="button" id="set" value="设置端口" />
+            <!-- <input type="button" id="zd" value="窗口置顶" /> -->
+        </div>
+        <div>
+            <label>KG:</label>
+            <input id="display" type="text" readonly />
+        </div>
+    </body> 
+    <script>
+        const {ipcRenderer} = require('electron')
+        const serialport = require('serialport')
+        if (typeof module === 'object') {window.jQuery = window.$ = module.exports;}; 
+        function init(){
+            $('input:checkbox').each(function(i){
+                const id = localStorage.getItem($(this).val())
+                if(id != undefined){
+                   $(this).attr('disabled', false)
+                }else{
+                   $(this).attr('disabled', true)
+                }
+            })
+        } 
+        (function($) {
+            init()
+            $('#set').click(function(){
+                ipcRenderer.send('newWindow', 'open')
+            });
+            var sp = {}
+            $('.com').click(function(){
+                // alert(localStorage.getItem($(this).val()))
+                var com = localStorage.getItem($(this).val())
+                if(($(this).is(":checked")) || (sp[com] == undefined)){
+                    sp[com] = new serialport(com, { baudRate: 9600, autoOpen: false })
+                    // openDataListen(sp[com])
+                    closeSerialPort(sp[com], $(this)).then(openSerialPort).then(function(serial){
+                        setInterval(function(){
+                            var data = serial.read()
+                            // console.log(data)
+                            if(data != null){
+                                // console.log(com)
+                                str = data.toString().match(/\d+\.\d+/g)[0]
+                                $("#display").val(str)
+                                ipcRenderer.send('disData', str)
+                            }
+                        }, 100)
+                    })
+                }else{
+                    alert("关闭成功")
+               }
+            });
+            function closeSerialPort(serial, obj){
+                console.log(Object.keys(sp).length)
+                return new Promise(function(resolve, reject){
+                    for(val in sp){
+                        console.log(val)
+                        if(sp[val] != serial && sp[val].isOpen){
+                            sp[val].close(function(err){
+                                if(err){
+                                    alert("切换端口时发生错误：" + err.message)
+                                }
+                                console.log('关闭端口')
+                            })
+                        }
+                    }
+                    obj.siblings().prop('checked', false)
+                    console.log(serial)
+                    resolve(serial)
+                })
+            }
+            function openSerialPort(serial){
+                var p = new Promise(function(resolve, reject){
+                    if(!serial.isOpen){
+                        serial.open(function(err){
+                            if(err){
+                                alert("打开端口发生错误 ：" + err.message)
+                            }
+                            console.log('打开端口')
+                            resolve(serial)
+                        })
+                    }
+                })
+                return p
+            }
+        })(jQuery);
+    </script> 
+</html>

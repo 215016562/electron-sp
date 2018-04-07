@@ -1,0 +1,17 @@
+{
+  "name": "sp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron ."
+  },
+  "author": "jsonq",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^1.8.4"
+  },
+  "dependencies": {
+    "serialport": "file:../../serialport/node_modules/serialport"
+  }
+}
