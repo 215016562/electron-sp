@@ -75,14 +75,16 @@
                     closeSerialPort(sp[com], $(this)).then(openSerialPort).then(function(serial){
                         setInterval(function(){
                             var data = serial.read()
-                            // console.log(data)
+                             
                             if(data != null){
-                                // console.log(com)
-                                str = data.toString().match(/\d+\.\d+/g)[0]
+                                //console.log(data.toString('ascii'))
+                             //console.log(data.length)
+                                //console.log(data.toString('ascii').match(/\d+\.\d+/g))
+                                str = data.toString('ascii').match(/\-/g) == null ? data.toString('ascii').match(/\d+\.\d+/)[0] : 0
                                 $("#display").val(str)
                                 ipcRenderer.send('disData', str)
                             }
-                        }, 100)
+                       }, 100)
                     })
                 }else{
                     sp[com].close(function(err){
@@ -93,21 +95,17 @@
                }
             });
             function closeSerialPort(serial, obj){
-                console.log(Object.keys(sp).length)
                 return new Promise(function(resolve, reject){
                     for(val in sp){
-                        console.log(val)
                         if(sp[val] != serial && sp[val].isOpen){
                             sp[val].close(function(err){
                                 if(err){
                                     alert("切换端口时发生错误：" + err.message)
                                 }
-                                console.log('关闭端口')
                             })
                         }
                     }
                     obj.siblings().prop('checked', false)
-                    console.log(serial)
                     resolve(serial)
                 })
             }

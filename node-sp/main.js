@@ -2,7 +2,6 @@ const {app, BrowserWindow, Menu, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
 const net = require('net')
-  
   // 保持一个对于 window 对象的全局引用，如果你不这样做，
   // 当 JavaScript 对象被垃圾回收， window 会被自动地关闭
   let win
@@ -29,7 +28,7 @@ const net = require('net')
   
     // 打开开发者工具。
     // win.webContents.openDevTools()
-  
+  // 
     // 当 window 被关闭，这个事件会被触发。
     win.on('closed', () => {
       // 取消引用 window 对象，如果你的应用支持多窗口的话，
@@ -78,15 +77,19 @@ const net = require('net')
 
     const server = net.createServer((c) => {
       // 'connection' listener
-      console.log('client connected')
-      // console.log(c)
-      c.write('hello\r\n');
       // c.pipe(c);
       ipcMain.on('disData', (event, data) => {
-        c.write(data)
-        console.log(data)
+        try{
+          c.write(data)
+        }catch(err){
+          console.log(err)
+        }
       })
     })
+    // server.on('connection', (s) => {
+    //   console.log('connectioned')
+    //   console.log(s)
+    // })
     server.on('error', (err) => {
       console.log(err)
     })
