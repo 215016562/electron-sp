@@ -1,18 +1,19 @@
 const {app, BrowserWindow, Menu, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
-const net = require('net')
   // 保持一个对于 window 对象的全局引用，如果你不这样做，
   // 当 JavaScript 对象被垃圾回收， window 会被自动地关闭
   let win
   let newWin
+  let displayData
 //   let menu
   
   function createWindow () {
     // 创建浏览器窗口。
     win = new BrowserWindow({width: 300, height: 150, show: false, resizable: false, maximizable: false})
     newWin = new BrowserWindow({parent: win, modal: true, width: 500, height: 100, show: false, resizable: false, maximizable: false})
-  
+    displayData = new BrowserWindow({parent: win, width: 30, height: 15, title: '0', show: false})
+
     // 然后加载应用的 index.html。
     win.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
@@ -36,6 +37,7 @@ const net = require('net')
       // 与此同时，你应该删除相应的元素。
       win = null
       newWin = null
+      displayData = null
     //   menu
     })
     
@@ -70,33 +72,11 @@ const net = require('net')
       newWin.show()
     })
     ipcMain.on('close', (event, data) => {
-      console.log('ddd')
-      console.log(data)
       newWin.hide()
     })
-
-    const server = net.createServer((c) => {
-      // 'connection' listener
-      // c.pipe(c);
-      ipcMain.on('disData', (event, data) => {
-        try{
-          c.write(data)
-        }catch(err){
-          console.log(err)
-        }
-      })
+    ipcMain.on('disData', (event, data) => {
+      displayData.setTitle(data.toString())
     })
-    // server.on('connection', (s) => {
-    //   console.log('connectioned')
-    //   console.log(s)
-    // })
-    server.on('error', (err) => {
-      console.log(err)
-    })
-    server.listen(8124, () => {
-      console.log('server bound');
-    })
-
   app.on('activate', () => {
     // 在macOS上，当单击dock图标并且没有其他窗口打开时，
     // 通常在应用程序中重新创建一个窗口。

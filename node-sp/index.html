@@ -71,14 +71,10 @@
                 var com = localStorage.getItem($(this).val())
                 if(($(this).is(":checked")) || (sp[com] == undefined)){
                     sp[com] = new serialport(com, { baudRate: 9600, autoOpen: false })
-                    // openDataListen(sp[com])
                     closeSerialPort(sp[com], $(this)).then(openSerialPort).then(function(serial){
                         setInterval(function(){
                             var data = serial.read()
-                             
                             if(data != null){
-                                //console.log(data.toString('ascii'))
-                             //console.log(data.length)
                                 //console.log(data.toString('ascii').match(/\d+\.\d+/g))
                                 str = data.toString('ascii').match(/\-/g) == null ? data.toString('ascii').match(/\d+\.\d+/)[0] : 0
                                 $("#display").val(str)
