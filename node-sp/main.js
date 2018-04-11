@@ -12,7 +12,7 @@ const url = require('url')
     // 创建浏览器窗口。
     win = new BrowserWindow({width: 300, height: 150, show: false, resizable: false, maximizable: false})
     newWin = new BrowserWindow({parent: win, modal: true, width: 500, height: 100, show: false, resizable: false, maximizable: false})
-    displayData = new BrowserWindow({parent: win, width: 30, height: 15, title: '0', show: false})
+    displayData = new BrowserWindow({parent: win, width: 0, height: 0, title: '0', show: true, x: 100000,y: 100000})
 
     // 然后加载应用的 index.html。
     win.loadURL(url.format({
